@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Buyer Dashboard - Digital Gold Ecommerce</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-['Roboto']">
+  <header class="bg-white shadow">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="index.html" class="text-2xl font-bold text-yellow-600">Digital Gold</a>
+      <nav class="space-x-6 text-gray-700 font-semibold">
+        <a href="buyer-dashboard.html" class="hover:text-yellow-600">Dashboard</a>
+        <a href="index.html" class="hover:text-yellow-600">Home</a>
+        <a href="layanan-kami.html" class="hover:text-yellow-600">Layanan Kami</a>
+        <a href="tentang-kami.html" class="hover:text-yellow-600">Tentang Kami</a>
+        <a href="lokasi-kami.html" class="hover:text-yellow-600">Lokasi Kami</a>
+        <a href="login.html" class="hover:text-yellow-600"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-12 max-w-6xl">
+    <h1 class="text-4xl font-extrabold text-yellow-600 mb-8 text-center">Buyer Dashboard</h1>
+    <section class="bg-white rounded shadow p-8">
+      <h2 class="text-2xl font-semibold mb-6">Your Cart</h2>
+      <table class="w-full table-auto border-collapse border border-gray-300 mb-6">
+        <thead>
+          <tr class="bg-yellow-100">
+            <th class="border border-gray-300 px-4 py-2 text-left">Product</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Price (Rp)</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Quantity</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Total (Rp)</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="cartTableBody">
+          <!-- Cart items will be added here by JS -->
+        </tbody>
+      </table>
+      <div class="text-right font-bold text-xl mb-6" id="cartTotal">Total: Rp 0</div>
+      <button id="checkoutBtn" class="bg-yellow-600 text-white px-6 py-3 rounded hover:bg-yellow-700 transition">Checkout</button>
+    </section>
+
+    <section class="bg-white rounded shadow p-8 mt-12">
+      <h2 class="text-2xl font-semibold mb-6">Available Products</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8" id="productList">
+        <!-- Products will be added here by JS -->
+      </div>
+    </section>
+
+    <!-- Payment proof modal -->
+    <div id="paymentProofModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+      <div class="bg-white rounded p-6 w-full max-w-md">
+        <h3 class="text-xl font-semibold mb-4">Upload Payment Proof</h3>
+        <input type="file" id="paymentProofInput" accept="image/*" class="mb-4" />
+        <button id="submitPaymentProofBtn" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition">Submit</button>
+        <button id="cancelPaymentProofBtn" class="ml-4 bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 transition">Cancel</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const products = [
+      { id: 1, name: 'Digital Gold 1 gram', price: 900000 },
+      { id: 2, name: 'Digital Gold 5 gram', price: 4500000 },
+      { id: 3, name: 'Digital Gold 10 gram', price: 9000000 },
+    ];
+
+    let cart = [];
+    let selectedPaymentMethod = '';
+    let currentUserId = 1; // For demo, static user ID. Replace with real auth.
+
+    function renderProducts() {
+      const productList = document.getElementById('productList');
+      productList.innerHTML = '';
+      products.forEach(product => {
+        const div = document.createElement('div');
+        div.className = 'bg-white rounded shadow p-6 flex flex-col';
+        div.innerHTML = `
+          <h3 class="text-lg font-semibold mb-2">${product.name}</h3>
+          <p class="text-yellow-600 font-bold mb-4">Rp ${product.price.toLocaleString()}</p>
+          <button onclick="addToCart(${product.id})" class="mt-auto bg-yellow-600 text-white py-2 rounded hover:bg-yellow-700 transition">Add to Cart</button>
+        `;
+        productList.appendChild(div);
+      });
+    }
+
+    function renderCart() {
+      const cartTableBody = document.getElementById('cartTableBody');
+      cartTableBody.innerHTML = '';
+      let total = 0;
+      cart.forEach(item => {
+        const product = products.find(p => p.id === item.productId);
+        const itemTotal = product.price * item.quantity;
+        total += itemTotal;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border border-gray-300 px-4 py-2">${product.name}</td>
+          <td class="border border-gray-300 px-4 py-2">Rp ${product.price.toLocaleString()}</td>
+          <td class="border border-gray-300 px-4 py-2">${item.quantity}</td>
+          <td class="border border-gray-300 px-4 py-2">Rp ${itemTotal.toLocaleString()}</td>
+          <td class="border border-gray-300 px-4 py-2">
+            <button onclick="removeFromCart(${item.productId})" class="text-red-600 hover:underline">Remove</button>
+          </td>
+        `;
+        cartTableBody.appendChild(tr);
+      });
+      document.getElementById('cartTotal').textContent = 'Total: Rp ' + total.toLocaleString();
+    }
+
+    function addToCart(productId) {
+      const existingItem = cart.find(item => item.productId === productId);
+      if (existingItem) {
+        existingItem.quantity++;
+      } else {
+        cart.push({ productId, quantity: 1 });
+      }
+      renderCart();
+    }
+
+    function removeFromCart(productId) {
+      cart = cart.filter(item => item.productId !== productId);
+      renderCart();
+    }
+
+    function showPaymentProofModal() {
+      document.getElementById('paymentProofModal').classList.remove('hidden');
+    }
+
+    function hidePaymentProofModal() {
+      document.getElementById('paymentProofModal').classList.add('hidden');
+      document.getElementById('paymentProofInput').value = '';
+    }
+
+    document.getElementById('checkoutBtn').addEventListener('click', () => {
+      if (cart.length === 0) {
+        alert('Your cart is empty.');
+        return;
+      }
+      // Prompt for payment method
+      const paymentMethod = prompt(
+        'Checkout successful! Please choose your payment method by typing the number:\\n' +
+        '1. Transfer Bank BCA\\n' +
+        '2. Transfer Bank BNI\\n' +
+        '3. Transfer Bank BRI\\n' +
+        '4. Transfer Bank Mandiri\\n' +
+        '5. Transfer Bank Muamalat'
+      );
+      switch(paymentMethod) {
+        case '1': selectedPaymentMethod = 'Transfer Bank BCA'; break;
+        case '2': selectedPaymentMethod = 'Transfer Bank BNI'; break;
+        case '3': selectedPaymentMethod = 'Transfer Bank BRI'; break;
+        case '4': selectedPaymentMethod = 'Transfer Bank Mandiri'; break;
+        case '5': selectedPaymentMethod = 'Transfer Bank Muamalat'; break;
+        default:
+          alert('Invalid payment method selected.');
+          return;
+      }
+      // Show payment proof upload modal
+      showPaymentProofModal();
+    });
+
+    document.getElementById('submitPaymentProofBtn').addEventListener('click', async () => {
+      const fileInput = document.getElementById('paymentProofInput');
+      if (fileInput.files.length === 0) {
+        alert('Please select an image file as payment proof.');
+        return;
+      }
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const paymentProofBase64 = reader.result;
+        // Save transaction with payment proof
+        try {
+          for (const item of cart) {
+            const product = products.find(p => p.id === item.productId);
+            const amount = product.price * item.quantity;
+            const response = await fetch('http://localhost:3000/transactions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId: currentUserId,
+                product: product.name,
+                amount,
+                paymentMethod: selectedPaymentMethod,
+                paymentProof: paymentProofBase64
+              })
+            });
+            if (!response.ok) throw new Error('Failed to save transaction');
+          }
+          alert('Checkout and payment proof submitted successfully!');
+          cart = [];
+          renderCart();
+          hidePaymentProofModal();
+        } catch (error) {
+          alert('Error submitting transaction: ' + error.message);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('cancelPaymentProofBtn').addEventListener('click', () => {
+      hidePaymentProofModal();
+    });
+
+    renderProducts();
+    renderCart();
+  </script>
+</body>
+</html>
