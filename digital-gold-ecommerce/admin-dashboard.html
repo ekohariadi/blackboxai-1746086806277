@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard - Digital Gold Ecommerce</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-['Roboto']">
+  <header class="bg-white shadow">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="index.html" class="text-2xl font-bold text-yellow-600">Digital Gold</a>
+      <nav class="space-x-6 text-gray-700 font-semibold">
+        <a href="admin-dashboard.html" class="hover:text-yellow-600">Dashboard</a>
+        <a href="index.html" class="hover:text-yellow-600">Home</a>
+        <a href="layanan-kami.html" class="hover:text-yellow-600">Layanan Kami</a>
+        <a href="tentang-kami.html" class="hover:text-yellow-600">Tentang Kami</a>
+        <a href="lokasi-kami.html" class="hover:text-yellow-600">Lokasi Kami</a>
+        <a href="login.html" class="hover:text-yellow-600"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-12 max-w-6xl">
+    <h1 class="text-4xl font-extrabold text-yellow-600 mb-8 text-center">Admin Dashboard</h1>
+    <section class="bg-white rounded shadow p-8">
+      <h2 class="text-2xl font-semibold mb-6">Manage Products</h2>
+      <table class="w-full table-auto border-collapse border border-gray-300">
+        <thead>
+          <tr class="bg-yellow-100">
+            <th class="border border-gray-300 px-4 py-2 text-left">Product</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Price (Rp)</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Stock</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="productTableBody">
+          <!-- Product rows will be added here by JS -->
+        </tbody>
+      </table>
+      <button id="addProductBtn" class="mt-6 bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition">Add New Product</button>
+    </section>
+  </main>
+
+  <script>
+    const products = [
+      { id: 1, name: 'Digital Gold 1 gram', price: 900000, stock: 100 },
+      { id: 2, name: 'Digital Gold 5 gram', price: 4500000, stock: 50 },
+      { id: 3, name: 'Digital Gold 10 gram', price: 9000000, stock: 20 },
+    ];
+
+    function renderProducts() {
+      const tbody = document.getElementById('productTableBody');
+      tbody.innerHTML = '';
+      products.forEach(product => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border border-gray-300 px-4 py-2">${product.name}</td>
+          <td class="border border-gray-300 px-4 py-2">Rp ${product.price.toLocaleString()}</td>
+          <td class="border border-gray-300 px-4 py-2">${product.stock}</td>
+        <td class="border border-gray-300 px-4 py-2">
+            <button onclick="editProduct(${product.id})" class="text-yellow-600 hover:underline mr-4">Edit</button>
+            <button onclick="deleteProduct(${product.id})" class="text-red-600 hover:underline">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function editProduct(id) {
+      const product = products.find(p => p.id === id);
+      const newName = prompt('Edit product name:', product.name);
+      if (newName) product.name = newName;
+      const newPrice = prompt('Edit product price (Rp):', product.price);
+      if (newPrice) product.price = parseInt(newPrice);
+      const newStock = prompt('Edit product stock:', product.stock);
+      if (newStock) product.stock = parseInt(newStock);
+      renderProducts();
+    }
+
+    function deleteProduct(id) {
+      const index = products.findIndex(p => p.id === id);
+      if (index !== -1) {
+        if (confirm('Are you sure you want to delete this product?')) {
+          products.splice(index, 1);
+          renderProducts();
+        }
+      }
+    }
+
+    document.getElementById('addProductBtn').addEventListener('click', () => {
+      const name = prompt('Product name:');
+      const price = prompt('Product price (Rp):');
+      const stock = prompt('Product stock:');
+      if (name && price && stock) {
+        products.push({ id: Date.now(), name, price: parseInt(price), stock: parseInt(stock) });
+        renderProducts();
+      }
+    });
+
+    renderProducts();
+  </script>
+</body>
+</html>
