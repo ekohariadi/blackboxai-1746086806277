@@ -1,0 +1,15 @@
+{
+  "name": "digital-gold-ecommerce-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Digital Gold Ecommerce",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql2": "^3.2.0",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2"
+  }
+}
